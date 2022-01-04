@@ -24,7 +24,7 @@ class Sample {
 
     // sample position at number of ticks
     static uint16_t position(Sample sample, uint16_t ticks) {
-
+        return 1;
     }
 
 

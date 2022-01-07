@@ -1,16 +1,23 @@
-#include <Arduino.h>
-#include <math.h>
-#include "sample.h"
-#include "waves.h"
 
-#define a4 440
-#define SAMPLERATE 100000
+#include "main.h"
+#include <USBSerial.h>
+
+// Plotted variables must be declared as globals 
+double x;
+double y;
 
 void setup()
 {
-  Serial.begin(115200);
+  //SerialUSB.begin();
+  //Serial.begin(115200);
+  
   //for (byte i=0; i<8; i++)
   //  pinMode(i, OUTPUT);
+  setupTimers();
+}
+
+void setupTimers() {
+
 }
 
 double getFrequency(byte forNote) {
@@ -36,21 +43,16 @@ void loop()
 
   double freq = getFrequency(currentNote);
   double ticks = ticksPerCycle(freq);
-  Serial.print("Hz: ");
-  Serial.print(freq);
-  Serial.print("\tticks ");
-  Serial.println(ticks);
-  delay(500);    
+  //Serial.print("Hz: ");
+  //Serial.print(freq);
+  //Serial.print("\tticks ");
+  //Serial.println(ticks);
 
-    
-/*
-  for (byte b=0; b<8; b++){    
-    if ((((byte)data) >> (b)) & 0x01)
-      digitalWrite(b, HIGH);
-    else
-      digitalWrite(b, LOW);
-    
-  }
-*/
+   // Update variables with arbitrary sine/cosine data
+    x = 10*sin( 2.0*PI*( millis() / 5000.0 ) );
+    y = 10*cos( 2.0*PI*( millis() / 5000.0 ) );
+
+  
+  delay(500);    
 
 }

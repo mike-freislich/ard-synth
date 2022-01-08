@@ -1,9 +1,7 @@
 #include <Arduino.h>
-#include <math.h>
-#include "sample.h"
-#include "waves.h"
+#include "RTTStream.h"
+#include "CMSIS_DSP.h"
 
-#define a4 440
-#define SAMPLERATE 100000
+void audioClock_Tick();
 
-void setupTimers();
+RTTStream rtt;

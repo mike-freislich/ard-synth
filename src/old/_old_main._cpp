@@ -1,0 +1,87 @@
+
+#include "_old_main.h"
+#define SamplingFrequency 100000
+
+// Plotted variables must be declared as globals
+double x;
+double y;
+
+HardwareTimer *audioClock = new HardwareTimer(TIM2);
+//HardwareTimer *gateClock; = new HardwareTimer(TIM3);
+
+void setup()
+{ 
+
+
+  rtt.println("starting ...");
+  
+  // for (byte i=0; i<8; i++)
+  //   pinMode(i, OUTPUT);
+  setupTimers();
+}
+
+
+
+
+void setupTimers()
+{
+  rtt.println("setting timers");
+  audioClock = new HardwareTimer(TIM2);
+  gateClock = new HardwareTimer(TIM3);
+  gateClock->setOverflow(60/120*1000, HERTZ_FORMAT);
+  gateClock->attachInterrupt(gateTick); 
+
+  audioClock->setOverflow(SamplingFrequency, HERTZ_FORMAT);
+  audioClock->attachInterrupt(audioTick);
+  audioClock->resume();
+}
+
+double getFrequency(byte forNote)
+{
+  byte octave = forNote / 12;
+  byte semitone = forNote - 12.0 * octave;
+  double octA = a4 * pow(2, (octave - 4));
+  double f = octA * pow(2, ((semitone - 9) / 12.0));
+  return f;
+}
+
+double ticksPerCycle(int Hz, long sampleRate = SAMPLERATE)
+{
+  return sampleRate / Hz;
+}
+
+byte currentNote = 0;
+void loop()
+{
+   //x = 128 * arm_sin_f32(2.0 * PI * (atCount / 5000.0));
+  //y = 128 * arm_cos_f32(2.0 * PI * (atCount / 5000.0));
+  
+  currentNote++;
+  if (currentNote > 110)
+    currentNote = 1;
+
+  double freq = getFrequency(currentNote);
+  double ticks = ticksPerCycle(freq);
+
+  // Update variables with arbitrary sine/cosine data
+
+  delay(100);
+  rtt.printf("freq=%u, x=%u, y=%u\n", (int)freq, (int)(x+128), (int)(y+128));
+    
+}
+
+void audioTick() {
+  atCount ++;
+  if (atCount >= SAMPLERATE) {
+    atCount = 0;    
+    rtt.println("-------------------------- 100k cycle done --------------------------");
+  }
+}
+
+void gateTick() {
+  
+}
+
+void controlsTick() {
+
+}

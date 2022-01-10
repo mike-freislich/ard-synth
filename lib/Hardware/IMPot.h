@@ -8,7 +8,7 @@ class IMPot: public IMControl
 private:    
     uint32_t value = 0;
     void (*onValueChanged)(uint32_t reading);
-    const byte tolerance = 10;
+    byte tolerance = 10;
 
 public:
     // Constructor
@@ -29,6 +29,8 @@ public:
             onValueChanged(value);
         }
     }
+
+    void setTolerance(byte tolerance) { this->tolerance = tolerance; }
 
     uint32_t getValue() { return value; }
 };

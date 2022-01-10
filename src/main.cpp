@@ -48,13 +48,10 @@ void setupPins()
   pinMode(POT_PULSE, INPUT);
 }
 
-void checkFreq()
-{
-}
-
-void onPulseWidthChanged(uint32_t pulseWidth)
+void onPulseWidthChanged(uint32_t width)
 {                             
-  pulseWidth = PWCurrent; // if reading from pot exceeds tolerance 
+  rtt.printf("pulse width pot changed %u\n", width);
+  pulseWidth = width; // if reading from pot exceeds tolerance 
   pulseWidthScaled = int(pulseWidth / 1023 * period); // new pulse width, val between 0 and 1023 
 }
 

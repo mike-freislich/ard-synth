@@ -10,7 +10,7 @@ void setupPins();
 void audioClock_Tick();
 void onButtonPressed();
 void onFrequencyChanged(uint32_t freq);
-void onPulseWidthChanged(uint32_t pulseWidth);
+void onPulseWidthChanged(uint32_t width);
 
 RTTStream rtt;
 IMButton *btnShape;

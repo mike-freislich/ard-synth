@@ -1,33 +1,25 @@
 #ifndef IM_BUTTON_H
 #define IM_BUTTON_H
 
-#include <Arduino.h>
+#include "IMControl.h"
 
-class IMButton
+class IMButton: public IMControl
 {
 
 private:
-    uint32_t pin;
     int buttonState;
-    int lastButtonState = LOW;
+    int lastButtonState = HIGH;
     uint32_t debounceDelay = 50;
     uint32_t lastDebounceTime = 0;
     void (*onButtonPressed)(void);
 
 public:
-    enum BUTTONSTATE
-    {
-        OFF,
-        JUSTPRESSED,
-        PRESSED
-    };
 
     // Constructor
-    IMButton(int pin, void (*callback)(void) = NULL, int btnPinMode = OUTPUT)
-    {
-        this->pin = pin;
-        onButtonPressed = callback;
-        pinMode(pin, btnPinMode);
+    IMButton(int pin, void (*callback)(void) = NULL, int btnPinMode = INPUT_PULLUP)
+    :IMControl(pin, btnPinMode)
+    {        
+        onButtonPressed = callback;        
     }
 
     // Destructor
@@ -42,19 +34,21 @@ public:
 
         if (millis() - lastDebounceTime > debounceDelay)
         {
-            if (reading != buttonState)
+            if (reading != buttonState) {
                 buttonState = reading;
 
-            if (buttonState == HIGH && onButtonPressed)
+            if (buttonState == LOW && onButtonPressed)
                 onButtonPressed();
+            }
+            
         }
-buttonState = reading;
+
         lastButtonState = reading;
     }
 
     bool isPressed()
     {
-        return buttonState == HIGH;
+        return buttonState == LOW;
     }
 };
 

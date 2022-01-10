@@ -2,46 +2,13 @@
 
 HardwareTimer audioClock = HardwareTimer(TIM2);
 
-// wavetype storage:
-// 0 is pulse
-// 1 is triangle
-// 2 is saw
-// 3 is sine
-byte shape = 3; // initialize as sine
-byte typecurrent = 8;
-byte typelast;
-byte typecounter[4];
-byte i;
 
-// variables for PW pot monitoring
-float pulseWidth;
-int pulseWidthScaled;
-int PWCurrent;
-byte PWTolerance = 20; // adjust this to increase/decrease stability of PW measurement
-
-// variables for freq pot monitoring
-int frequency;
-int freqCurrent;
-byte freqTolerance = 20; // adjust this to increase/decrease stability of frequency measurement
-unsigned int freqscaled;
-
-byte wave;
-long t;
-long samplerate;
-long period;
-
-// storage variables- I used these to cut down on the math being performed during the interrupt
-int sawByte = 0;
-byte sawInc;
-int triByte = 0;
-byte triInc;
-int sinNum = 0;
-int sinInc;
 
 void setup()
 {
   setupPins();
   userButton = new IMButton(USER_BTN, &onButtonPressed);
+  freqPot = new IMPot(POT_FREQ, &onFrequencyChanged);
 
   samplerate = SAMPLERATE;
 
@@ -65,8 +32,8 @@ void setup()
 
 void setupPins()
 {
-  //pinMode(LED_BUILTIN, OUTPUT);
-  pinMode(USER_BTN, INPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
+ // pinMode(USER_BTN, INPUT);
   pinMode(DBIT_0, OUTPUT);
   pinMode(DBIT_1, OUTPUT);
   pinMode(DBIT_2, OUTPUT);
@@ -85,23 +52,7 @@ void setupPins()
 
 void checkFreq()
 {
-  freqCurrent = analogRead(POT_FREQ);
-  //freqCurrent = 128;
-  if (abs(freqCurrent - frequency) > freqTolerance)
-  {                                  // if reading from pot exceeds tolerance
-    frequency = freqCurrent;         // new frequency- number between 0 and 1024
-    freqscaled = 10 * frequency + 1; // from 1 to ~50,000
-    period = samplerate / freqscaled;
-    pulseWidthScaled = int(pulseWidth / 1023 * period);
-    triInc = 511 / period;
-    if (triInc == 0)
-      triInc = 1;
-
-    sawInc = 255 / period;
-    if (sawInc == 0)
-      sawInc = 1;
-    sinInc = 20000 / period;
-  }
+ 
 }
 
 void checkPW()
@@ -113,10 +64,6 @@ void checkPW()
     pulseWidth = PWCurrent; // new pulse width, val between 0 and 1023
     pulseWidthScaled = int(pulseWidth / 1023 * period);
   }
-}
-
-void checkShape()
-{
 }
 
 void audioClock_Tick()
@@ -165,22 +112,53 @@ void audioClock_Tick()
 
 void onButtonPressed() {
   rtt.println("user button pressed");
+  shape = (shape + 1)%4;
+}
+
+void onFrequencyChanged(uint32_t freq) {
+  rtt.printf("freq pot changed %u\n", freq);
+  freqCurrent = freq;
+
+  if (abs(freqCurrent - frequency) > freqTolerance)
+  {                                  // if reading from pot exceeds tolerance
+    frequency = freqCurrent;         // new frequency- number between 0 and 1024
+    freqscaled = 1 * frequency + 1; // from 1 to ~50,000
+    period = samplerate / freqscaled;
+    pulseWidthScaled = int(pulseWidth / 1023 * period);
+    triInc = 511 / period;
+    if (triInc == 0)
+      triInc = 1;
+
+    sawInc = 255 / period;
+    if (sawInc == 0)
+      sawInc = 1;
+    sinInc = 20000 / period;
+  }
 }
 
 void loop()
-{
-  userButton->update();
+{  
   
-  rtt.printf("updating userbutton %d\n", userButton->isPressed());
-  checkFreq();
-  checkShape();
+  //rtt.printf("updating userbutton %d\n", userButton->isPressed());
+  //checkFreq();
+
   checkPW();
-  delay(10);
+  //checkShape();
+
+  freqPot->update();
+  userButton->update(); 
+  
+  //delay(10);
   // digitalWrite(LED_BUILTIN, HIGH);
   // delay(1000);
   // digitalWrite(LED_BUILTIN, LOW);
   //  STM_PORT(PortA) = 1 << shape;
 
   // PortB = 1<<shape; //TODO : implement LEDs
-  //rtt.printf("f=%d p=%d w=%d\n", freqCurrent, pulseWidthScaled, typecurrent);
+  //rtt.printf("f=%d p=%d shape=%d\n", freqCurrent, pulseWidthScaled, shape);
+  if (userButton->isPressed()) {
+    digitalWrite(LED_BUILTIN, LOW); } else
+  {
+    digitalWrite(LED_BUILTIN, HIGH);
+  }
 }

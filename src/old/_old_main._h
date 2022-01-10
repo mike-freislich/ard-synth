@@ -6,7 +6,6 @@
 #include "waves.h"
 
 
-
 #define a4 440
 #define SAMPLERATE 100000
 
